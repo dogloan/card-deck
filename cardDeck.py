@@ -126,4 +126,9 @@ class CardDeck:
             player_hand = n
             player_statement = "".join(["Player ", str(player_count), " has:"])
             print(player_statement)
-            print(len(player_hand))
+            player_cards = 0
+            while player_cards < len(player_hand):
+                card = player_hand[player_cards]
+                print(self.card_translator(card))
+                player_cards += 1
+                
