@@ -180,8 +180,9 @@ print(dealer.dealer_hand)
 dealer_value = dealer.hand_counter(dealer.dealer_hand)["score"]
 print("Dealer has a ", dealer_value)
 print()
-print("Dealer draws:")
+print("Dealer is holding a ", dealer_value)
 while dealer_value <= 16:
+    print("Dealer draws.")
     dealer.deal_individual(dealer.dealer_hand)
     dealer_value = dealer.hand_counter(dealer.dealer_hand)["score"]
     if dealer_value > 21:
