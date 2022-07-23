@@ -67,13 +67,11 @@ class BlackJackDealer:
         self.dealer_hand.append(card)
 
     """ this function will deal to individual players unlike deal_initial
-    it will be given a hand and return the new hand a different function
-    will determine checking it and adding it to self.player_hand
+    it will be given a hand and and append a card from the deck to it
     """
     def deal_individual(self,hand):
         card = self.deck.pop()
-        new_hand = hand.append(card)
-        return new_hand
+        hand.append(card)
     """
     add all the face values together for a total
     give back the entire dictionary of pertinant information in a
@@ -111,19 +109,18 @@ class BlackJackDealer:
                 final_count["blackjack"] = True
                 return final_count
             elif score_count > 21:
+                # bust in two cards
+                final_count["score"] = score_count
+                final_count["bust"] = True
+                final_count["blackjack"] = False
                 # if they have aces and are busting, those will become
                 # 1s instead of 11s
                 while ace_count > 0 and score_count > 21:
                     ace_count -= 1
                     score_count -= 10
-                    final_count["score"] = score_count
-                    final_count["bust"] = True
-                    final_count["blackjack"] = False
-                    return final_count
-                # bust in two cards
-                final_count["score"] = score_count
-                final_count["bust"] = True
-                final_count["blackjack"] = False
+                    if score_count <= 21:
+                        final_count["bust"] = False
+                        print("saved by an ace")
                 return final_count
             else:
                 # 21 or under
@@ -159,6 +156,7 @@ dealer.deck_builder()
 dealer.deal_initial(4)
 print("dealer hand:")
 print(dealer.dealer_hand)
+print("Dealer has a ", dealer.hand_counter(dealer.dealer_hand))
 print()
 print("player hands:")
 for player in dealer.player_hand:
@@ -176,3 +174,23 @@ for player in dealer.player_hand:
     print("Player ", player, " has: ", dealer.player_hand[player])
 for player in dealer.player_hand:
     print("Player ", player, " has: ", dealer.hand_counter(dealer.player_hand[player]))
+
+print("dealer hand:")
+print(dealer.dealer_hand)
+dealer_value = dealer.hand_counter(dealer.dealer_hand)["score"]
+print("Dealer has a ", dealer_value)
+print()
+print("Dealer draws:")
+while dealer_value <= 16:
+    dealer.deal_individual(dealer.dealer_hand)
+    dealer_value = dealer.hand_counter(dealer.dealer_hand)["score"]
+    if dealer_value > 21:
+        print("dealer bust")
+    print("Dealer is holding:")
+    print(dealer_value)
+    print()
+print()
+print("Dealer has a ", dealer_value)
+print()
+print("Remaining deck:")
+print(dealer.deck)
