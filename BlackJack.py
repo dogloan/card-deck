@@ -89,41 +89,119 @@ class Dealer(Player):
         """ self.players will be a dictionary of players """
         self.players = {}
 
-    def set_table(self, player_amount = 1):
+    def set_table_players(self, player_amount = 1):
         """ add players to player list, prepare to deal
         default player_amount = 1 """
         for n in range(player_amount):
             self.players[n] = Player()
 
-    def announce_players(self):
-        """ return statement announcing how many players are at the table """
+    def card_translator(self, card):
+        """ this function will translate a card list into english """
+        face_value = ""
+        suit_value = ""
+        """ determine face value """
+        if card[0] == 1:
+            face_value = "ace"
+        elif card[0] == 11:
+            face_value = "jack"
+        elif card[0] == 12:
+            face_value = "queen"
+        elif card[0] == 13:
+            face_value = "king"
+        else:
+            face_value = str(card[0])
+        """ determine suit value """
+        if card[1] == "h":
+            suit_value = "hearts"
+        elif card[1] == "d":
+            suit_value = "diamonds"
+        elif card[1] == "c":
+            suit_value = "clubs"
+        else:
+            suit_value = "spades"
+        """ put the string together and return it """
+        card = f"{face_value} of {suit_value}"
+        return card
+
+    def read_table_cards(self):
+        """ print statement reading all the cards on the table """
         player_amount = len(self.players)
-        statement = f"There are {player_amount} players at the table."
-        return statement
+        statement1 = f"There are {player_amount} players at the table."
+        print(statement1)
+        player_count = 1
+        for n in self.players:
+            """ announce the players cards one by one """
+            player_statement = f"\nPlayer {player_count} has:"
+            print(player_statement)
+            for card in self.players[n].hand[0]:
+                print(f"{self.card_translator(card)}")
+            player_count += 1
+        dealer_card_count = len(self.hand[0])
+        print(f"\nDealer has:")
+        if dealer_card_count == 1:
+            print("Dealer has one face down card.\n")
+        else:
+            for card in self.hand[0]:
+                print(f"{self.card_translator(card)}")
+
+    def set_table_scores(self):
+        """ set the scores of everyone at the table """
+        dealer_hand = self.hand_counter(self.hand[0])
+        self.hand_value_blackjack = dealer_hand
+        self.blackjack_score = dealer_hand["score"]
+        self.blackjack_bust = dealer_hand["bust"]
+        self.blackjack = dealer_hand["blackjack"]
+        for n in self.players:
+            player_hand = self.hand_counter(self.players[n].hand[0])
+            self.players[n].hand_value_blackjack = player_hand
+            self.players[n].blackjack_score = player_hand["score"]
+            self.players[n].blackjack_bust = player_hand["bust"]
+            self.players[n].blackjack = player_hand["blackjack"]
+
 
     def blackjack_initial_deal(self):
         """ deal the initial blackjack hands, giving cards to all players
         and the dealer. clear all hands first """
+        player_count = 1
         self.hand[0].clear()
         for n in self.players:
             self.players[n].hand[0] = []
             self.players[n].hand[1] = False
         """ dealing round one """
+        print("Dealing will now begin.\n")
         for n in self.players:
             player_card = self.deck.deal_topcard()
             self.players[n].hand[0].append(player_card)
+            self.set_table_scores()
+            card_translated = self.card_translator(player_card)
+            card_statement_player = f"Player {player_count} draws a {card_translated}.\n"
+            print(card_statement_player)
+            player_count += 1
         dealer_card = self.deck.deal_topcard()
         self.hand[0].append(dealer_card)
+        self.set_table_scores()
+        card_statement_dealer = f"Dealer draws facedown.\n"
+        print(card_statement_dealer)
         """ dealing round two """
+        player_count = 1
         for n in self.players:
             player_card = self.deck.deal_topcard()
             self.players[n].hand[0].append(player_card)
+            card_translated_two = self.card_translator(player_card)
+            self.set_table_scores()
+            card_statement_player = f"Player {player_count} draws a {card_translated_two}.\n" \
+                                    f"Player {player_count} has a {card_translated} and {card_translated_two}.\n" \
+                                    f"Player {player_count}'s score is {self.players[n].blackjack_score}.\n"
+            print(card_statement_player)
+            player_count += 1
         dealer_card = self.deck.deal_topcard()
         self.hand[0].append(dealer_card)
-        """ set scores for all players and whether they hit or busted """
-        self.hand_value_blackjack = self.hand_counter(self.hand[0])
-        for n in self.players:
-            self.players[n].hand_value_blackjack = self.hand_counter(self.players[n].hand[0])
+        dealer_card_translated = self.card_translator(dealer_card)
+        self.set_table_scores()
+        card_statement_dealer = f"Dealer draws a {dealer_card_translated} face up.\n" \
+                                f"Dealer's has one down and a " \
+                                f"{dealer_card_translated} up.\n"
+        print(card_statement_dealer)
 
     def hand_counter(self, hand):
         """ we need to keep track of how many cards the hand has and what
