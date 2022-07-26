@@ -77,24 +77,6 @@ class Deck:
         self.deck.remove(card)
         return card
 
-class Dealer(Player):
-    """ this class will manage the deck, players, turn rounds,
-    all dealer activities """
-
-    def __init__(self):
-        """ dealer is a subclass of Player """
-        super().__init__()
-        """ self.deck will be an object of the Deck class """
-        self.deck = Deck()
-        """ self.players will be a dictionary of players """
-        self.players = {}
-
-    def set_table_players(self, player_amount = 1):
-        """ add players to player list, prepare to deal
-        default player_amount = 1 """
-        for n in range(player_amount):
-            self.players[n] = Player()
-
     def card_translator(self, card):
         """ this function will translate a card list into english """
         face_value = ""
@@ -123,6 +105,26 @@ class Dealer(Player):
         card = f"{face_value} of {suit_value}"
         return card
 
+class Dealer(Player):
+    """ this class will manage the deck, players, turn rounds,
+    all dealer activities """
+
+    def __init__(self):
+        """ dealer is a subclass of Player """
+        super().__init__()
+        """ self.deck will be an object of the Deck class """
+        self.deck = Deck()
+        """ self.players will be a dictionary of players """
+        self.players = {}
+        """ has the dealer revealed their card yet """
+        self.blackjack_reveal = False
+
+    def set_table_players(self, player_amount = 1):
+        """ add players to player list, prepare to deal
+        default player_amount = 1 """
+        for n in range(player_amount):
+            self.players[n] = Player()
+
     def read_table_cards(self):
         """ print statement reading all the cards on the table """
         player_amount = len(self.players)
@@ -134,15 +136,15 @@ class Dealer(Player):
             player_statement = f"\nPlayer {player_count} has:"
             print(player_statement)
             for card in self.players[n].hand[0]:
-                print(f"{self.card_translator(card)}")
+                print(f"{self.deck.card_translator(card)}")
             player_count += 1
-        dealer_card_count = len(self.hand[0])
         print(f"\nDealer has:")
-        if dealer_card_count == 1:
-            print("Dealer has one face down card.\n")
+        if self.blackjack_reveal == False:
+            up_card = self.deck.card_translator(self.hand[0][0])
+            print(f"One card down and a {up_card} up.")
         else:
-            for card in self.hand[0]:
-                print(f"{self.card_translator(card)}")
+            for n in self.hand[0]:
+                print(self.deck.card_translator(n))
 
     def set_table_scores(self):
         """ set the scores of everyone at the table """
@@ -173,7 +175,7 @@ class Dealer(Player):
             player_card = self.deck.deal_topcard()
             self.players[n].hand[0].append(player_card)
             self.set_table_scores()
-            card_translated = self.card_translator(player_card)
+            card_translated = self.deck.card_translator(player_card)
             card_statement_player = f"Player {player_count} draws a {card_translated}.\n"
             print(card_statement_player)
             player_count += 1
@@ -187,7 +189,7 @@ class Dealer(Player):
         for n in self.players:
             player_card = self.deck.deal_topcard()
             self.players[n].hand[0].append(player_card)
-            card_translated_two = self.card_translator(player_card)
+            card_translated_two = self.deck.card_translator(player_card)
             self.set_table_scores()
             card_statement_player = f"Player {player_count} draws a {card_translated_two}.\n" \
                                     f"Player {player_count} has a {card_translated} and {card_translated_two}.\n" \
@@ -196,7 +198,7 @@ class Dealer(Player):
             player_count += 1
         dealer_card = self.deck.deal_topcard()
         self.hand[0].append(dealer_card)
-        dealer_card_translated = self.card_translator(dealer_card)
+        dealer_card_translated = self.deck.card_translator(dealer_card)
         self.set_table_scores()
         card_statement_dealer = f"Dealer draws a {dealer_card_translated} face up.\n" \
                                 f"Dealer's has one down and a " \
